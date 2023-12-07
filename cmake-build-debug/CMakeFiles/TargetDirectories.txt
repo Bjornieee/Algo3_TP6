@@ -1,0 +1,3 @@
+/home/haissam/depot_git/base_code_lab6/cmake-build-debug/CMakeFiles/base_code_lab6.dir
+/home/haissam/depot_git/base_code_lab6/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/haissam/depot_git/base_code_lab6/cmake-build-debug/CMakeFiles/rebuild_cache.dir

@@ -1,4 +1,5 @@
-./Code/documentation
+/Code/documentation
 *.o
-.idea/*
-
+*.idea/*
+/src/*
+/Code/vgcode.*
