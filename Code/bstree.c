@@ -6,11 +6,14 @@
 
 /*------------------------  BSTreeType  -----------------------------*/
 
+typedef enum {black, red} NodeColor;
+
 struct _bstree {
     BinarySearchTree *parent;
     BinarySearchTree *left;
     BinarySearchTree *right;
     int root;
+    NodeColor color;
 };
 
 typedef struct {
@@ -22,16 +25,16 @@ typedef struct {
 
 BinarySearchTree *bstree_create() {
     return NULL;
+}
 
 BinarySearchTree *bstree_cons(BinarySearchTree *left, BinarySearchTree *right, int root) {
     BinarySearchTree *t = malloc(sizeof(struct _bstree));
     t->parent = NULL;
     t->left = left;
     t->right = right;
-    if (t->left != NULL)
-        t->left->parent = t;
-    if (t->right != NULL)
-        t->right->parent = t;
+    t->color = red;
+    t->left = left;
+    t->right = right;
     t->root = root;
     return t;
 }
@@ -380,3 +383,68 @@ const BinarySearchTree *bstree_iterator_value(const BSTreeIterator *i) {
     return i->current;
 }
 
+/*------------------------  BSTreePrinter  -----------------------------*/
+void printNode(const BinarySearchTree *t, void *userData) {
+    FILE *file = (FILE *) userData;
+
+    printf("%d ", bstree_root(t));
+    fprintf(file, "\tn%d [style=filled, fillcolor=red, label=\"{{<parent>}|%d|{<left>|<right>}}\"];\n", bstree_root(t), bstree_root(t));
+
+    if (bstree_left(t)) {
+        fprintf(file, "\tn%d:left:c -> n%d:parent:c [headclip=false, tailclip=false]\n", bstree_root(t),
+                bstree_root(bstree_left(t)));
+    } else {
+        fprintf(file, "\tlnil%d [style=filled, fillcolor=grey, label=\"NIL\"];\n", bstree_root(t));
+        fprintf(file, "\tn%d:left:c -> lnil%d:n [headclip=false, tailclip=false]\n", bstree_root(t), bstree_root(t));
+    }
+    if (bstree_right(t)) {
+        fprintf(file, "\tn%d:right:c -> n%d:parent:c [headclip=false, tailclip=false]\n", bstree_root(t),
+                bstree_root(bstree_right(t)));
+    } else {
+        fprintf(file, "\trnil%d [style=filled, fillcolor=grey, label=\"NIL\"];\n", bstree_root(t));
+        fprintf(file, "\tn%d:right:c -> rnil%d:n [headclip=false, tailclip=false]\n", bstree_root(t), bstree_root(t));
+    }
+}
+
+void rbtree_export_dot ( const BinarySearchTree *t , FILE * file ) {
+    fprintf (file,
+             " digraph RedBlackTree {\n\tgraph[ ranksep =0.5];\n\tnode [ shape = record];\n\n");
+    bstree_iterative_depth_infix (t , printNode , file );
+    fprintf (file ,"\n}\n");
+}
+
+/*------------------------  BSTreeRotations  -----------------------------*/
+
+void leftrotate(BinarySearchTree *x){
+    BinarySearchTree *y = x->right;
+    x->right = y->left;
+    if(y->left) y->left->parent = x;
+    y->parent = x->parent;
+    if(!x->parent) x->parent = y;
+    else if(x->parent->left == x) x->parent->left = y;
+    else x->parent->right = y;
+    y->left = x;
+    x->parent = y;
+}
+
+void rightrotate(BinarySearchTree *y){
+    BinarySearchTree *x = y->left;
+    y->left = x->right;
+    if(x->right) x->right->parent = y;
+    x->parent = y->parent;
+    if(!y->parent) y->parent = x;
+    else if(y->parent->left == y) y->parent->left = x;
+    else y->parent->right = x;
+    x->right = y;
+    y->parent = x;
+}
+
+void testrotateleft(BinarySearchTree *t){
+    leftrotate(t);
+}
+
+void testrotateright(BinarySearchTree *t){
+    rightrotate(t);
+}
+
+/*------------------------  BSTreeInsertion  -----------------------------*/
